@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
+import fetchData from '../common/fetch';
 import useDebounce from '../common/useDebounce';
 
 const LocationsSearch = () => {
-
-    const fetchLocations = async () => {
-        const response = await fetch(`/location?q=${debouncedQuery}`);
-        return response.json();
-    };
 
     const manageQueryChange = async () => {
         if (canPerformQuery) {
             setLoading(true);
             setLocations([]);
-            setLocations(await fetchLocations());
+            setLocations(await fetchData(`/location?q=${debouncedQuery}`));
             setLoading(false);
         } else {
             setLocations([]);
@@ -53,6 +49,7 @@ const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
     <input
         type="text"
         placeholder="Search locations..."
+        role="location-search-input"
         value={query}
         onChange={e => onChange(e.target.value)}
     />
@@ -61,12 +58,12 @@ const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
 const LocationsSearchMessage: React.FC<LocationSearchMessageProps> = ({
     loading, canPerformQuery, minQueryCharacters
 }) => (
-    <div>{
+    <div role="location-search-message">{
         loading ?
             <em>Loading...</em> :
             canPerformQuery ?
                 '' :
-                `Please type at least ${minQueryCharacters} to search`
+                `Please type at least ${minQueryCharacters} characters to search`
     }</div>
 );
 
@@ -76,7 +73,11 @@ const LocationSearchResults: React.FC<LocationSearchResultsProps> = ({
     <ul>
         {
             locations.map(({ geonameid, name }) => (
-                <li key={geonameid}>{name}</li>
+                <li
+                    role='location-search-result'
+                    key={geonameid}>
+                    {name}
+                </li>
             ))
         }
     </ul>
