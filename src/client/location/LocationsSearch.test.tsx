@@ -1,17 +1,28 @@
-import { render, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, fireEvent, act } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import LocationsSearch from './LocationsSearch';
 
 describe('LocationSearch', () => {
 
-    const londonLocation = { geonameid: '1', location: 'London' };
-    const hiltonLocation = { geonameid: '2', location: 'Hilton' };
+    const jubileeShoalLocation = { geonameid: 1, name: 'Jubilee Shoal' };
+    const leedsCastleLocation = { geonameid: 2, name: 'Leeds Castle' };
+    const mockQueries: MockQueries = {
+        'lee': [jubileeShoalLocation, leedsCastleLocation],
+        'leed': [leedsCastleLocation],
+    };
+    interface MockQueries {
+        [key: string]: MockQuery[]
+    };
+    interface MockQuery {
+        geonameid: number;
+        name: string;
+    }
     const server = setupServer(
-        rest.get('/location', (req, res, ctx) => (
-            res(ctx.json([londonLocation]))
-        ))
-
+        rest.get('/location', (req, res, ctx) => {
+            const query: string = req.url.searchParams.get('q') || '';
+            return res(ctx.json(mockQueries[query] || []));
+        })
     );
 
     beforeAll(() => server.listen());
@@ -35,27 +46,39 @@ describe('LocationSearch', () => {
         const messageText = 'Please type at least 3 characters to search';
         expect(input.value).toBe('');
         expect(message.textContent).toBe(messageText);
-        fireEvent.change(input, { target: { value: 'lo' } });
-        expect(input.value).toBe('lo');
+        fireEvent.change(input, { target: { value: 'le' } });
+        expect(input.value).toBe('le');
         expect(message.textContent).toBe(messageText);
         act(() => jest.advanceTimersByTime(300));
     });
 
     test('x2', async () => {
-        const { input, findByRole, getAllByRole } = setup();
+        const { input, findAllByRole } = setup();
 
-        fireEvent.change(input, { target: { value: 'lon' } });
+        fireEvent.change(input, { target: { value: 'lee' } });
         act(() => jest.advanceTimersByTime(1000));
-        const listItems = await findByRole('location-search-result');
-        expect(listItems).toBeInTheDocument()
+        const listItems = await findAllByRole('location-search-result');
+        const results = [
+            jubileeShoalLocation.name, leedsCastleLocation.name
+        ];
+        expect(listItems).toHaveLength(results.length);
 
-        // const x = getAllByRole('location-search-result')
-        // titleElements.forEach((titleElement, index) => {
-        //     expect(titleElement.textContent).toBe(companies[index]);            
-        // });  
+        listItems.forEach((listItem, index) => {
+            expect(listItem.textContent).toBe(results[index])
+        });
+    });
 
-        // x.forEach((item, index) => {
-        //     console.log(item);
-        // });
+    test('x3', async () => {
+        const { input, findAllByRole } = setup();
+
+        fireEvent.change(input, { target: { value: 'leed' } });
+        act(() => jest.advanceTimersByTime(1000));
+        const listItems = await findAllByRole('location-search-result');
+        const results = [leedsCastleLocation.name];
+        expect(listItems).toHaveLength(results.length);
+
+        listItems.forEach((listItem, index) => {
+            expect(listItem.textContent).toBe(results[index])
+        });
     });
 });
