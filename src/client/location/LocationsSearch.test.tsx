@@ -39,46 +39,59 @@ describe('LocationSearch', () => {
         const input = utils.getByRole('location-search-input');
         const message = utils.getByRole('location-search-message');
         return { input, message, ...utils };
-    }
+    };
+
+    const debounceTypedText = () => act(() => jest.advanceTimersByTime(300));
 
     test('updates the input when the user starts to type', async () => {
         const { input, message } = setup();
+
+        // by default, the search input is empty and a cta text is displayed
         const messageText = 'Please type at least 3 characters to search';
         expect(input.value).toBe('');
         expect(message.textContent).toBe(messageText);
+
+        // when some text with < 3 characters is entered
         fireEvent.change(input, { target: { value: 'le' } });
         expect(input.value).toBe('le');
+        debounceTypedText();
+
+        // then no search is triggered yet, and the cta text remains
         expect(message.textContent).toBe(messageText);
-        act(() => jest.advanceTimersByTime(300));
+        debounceTypedText();
     });
 
-    test('x2', async () => {
-        const { input, findAllByRole } = setup();
+    [
+        {
+            query: 'lee',
+            expectedLocations: [
+                jubileeShoalLocation.name, leedsCastleLocation.name
+            ]
+        },
+        {
+            query: 'leed',
+            expectedLocations: [leedsCastleLocation.name]
+        }
+    ].forEach(({ query, expectedLocations }) => {
 
-        fireEvent.change(input, { target: { value: 'lee' } });
-        act(() => jest.advanceTimersByTime(1000));
-        const listItems = await findAllByRole('location-search-result');
-        const results = [
-            jubileeShoalLocation.name, leedsCastleLocation.name
-        ];
-        expect(listItems).toHaveLength(results.length);
+        test([
+            `displays "${expectedLocations.join(', ')}"`,
+            `when the query "${query}" is entered`
+        ].join(' '), async () => {
+            const { input, findAllByRole } = setup();
 
-        listItems.forEach((listItem, index) => {
-            expect(listItem.textContent).toBe(results[index])
-        });
-    });
+            // given we enter a valid query
+            fireEvent.change(input, { target: { value: query } });
+            debounceTypedText();
 
-    test('x3', async () => {
-        const { input, findAllByRole } = setup();
+            // when the results are displayed
+            const listItems = await findAllByRole('location-search-result');
 
-        fireEvent.change(input, { target: { value: 'leed' } });
-        act(() => jest.advanceTimersByTime(1000));
-        const listItems = await findAllByRole('location-search-result');
-        const results = [leedsCastleLocation.name];
-        expect(listItems).toHaveLength(results.length);
-
-        listItems.forEach((listItem, index) => {
-            expect(listItem.textContent).toBe(results[index])
+            // they match the expected ones
+            expect(listItems).toHaveLength(expectedLocations.length);
+            listItems.forEach((listItem, index) => {
+                expect(listItem.textContent).toBe(expectedLocations[index]);
+            });
         });
     });
 });
