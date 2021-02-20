@@ -40,12 +40,16 @@ The project tries to follow best coding practises defined by
 ## Testing the app
 `npm test`
 
-## Proposed changes
-#### Frontend
-1. Improve bookmarking by persisting search queries on the URL
+## Proposed functional changes
+1. Display coordinates next to results.
+2. Sort the results by the closest name match.
+3. Improve bookmarking by persisting search queries on the URL
 (e.g. `http://localhost?q=lee`).
+4. Improve the UI by adding some context and styling for mobile & desktop.
+
+## Proposed technical changes
+#### Frontend
 1. Add a CSS preprocessor (e.g. with [Sass](https://sass-lang.com/)).
-2. Improve the UI by adding some context and styling for mobile & desktop.
 2. Extend unit test coverage (e.g. for the `fetch` component).
 3. Add E2E test coverage (e.g. [Cypress](https://www.cypress.io/)).
 4. Add Visual Regression test coverage (e.g. with 
