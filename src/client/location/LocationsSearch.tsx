@@ -36,6 +36,7 @@ const LocationsSearch = () => {
                 loading={loading}
                 canPerformQuery={canPerformQuery}
                 minQueryCharacters={minQueryCharacters}
+                locations={locations}
             />
             <LocationSearchResults locations={locations} />
 
@@ -56,13 +57,15 @@ const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
 );
 
 const LocationsSearchMessage: React.FC<LocationSearchMessageProps> = ({
-    loading, canPerformQuery, minQueryCharacters
+    loading, canPerformQuery, minQueryCharacters, locations
 }) => (
-    <div role="location-search-message">{
+    <div>{
         loading ?
             <em>Loading...</em> :
             canPerformQuery ?
-                '' :
+                locations.length ?
+                    '' :
+                    'No locations found, please update your query to search again' :
                 `Please type at least ${minQueryCharacters} characters to search`
     }</div>
 );
@@ -92,6 +95,7 @@ interface LocationSearchMessageProps {
     loading: boolean;
     canPerformQuery: boolean;
     minQueryCharacters: number;
+    locations: Location[];
 };
 
 interface LocationSearchResultsProps {
