@@ -6,7 +6,7 @@ const getLocations = async (query, db) => (
         []
 );
 
-getLocationsQuery = (query) => (
+const getLocationsQuery = (query) => (
     `SELECT geonameid, name FROM locations WHERE name LIKE '%${query}%'`
 );
 

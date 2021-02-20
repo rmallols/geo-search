@@ -12,7 +12,7 @@ describe('LocationSearch', () => {
         'leed': [leedsCastleLocation],
     };
     interface MockQueries {
-        [key: string]: MockQuery[]
+        [key: string]: MockQuery[];
     };
     interface MockQuery {
         geonameid: number;
@@ -94,7 +94,7 @@ describe('LocationSearch', () => {
             // when the results are displayed
             const listItems = await findAllByRole('location-search-result');
 
-            // they match the expected ones
+            // then they match the expected ones
             expect(listItems).toHaveLength(expectedLocations.length);
             listItems.forEach((listItem, index) => {
                 expect(listItem.textContent).toBe(expectedLocations[index]);

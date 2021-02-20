@@ -3,4 +3,4 @@ const fetchData = async (url: string): Promise<any> => {
     return response.json();
 };
 
-export default fetchData
+export default fetchData;
